@@ -55,6 +55,10 @@ public class Clerk implements Serializable {
     @Schema(description = "部门编号")
     private String departmentId;
 
+    @Schema(description = "部门名称")
+    @TableField(exist = false)
+    private String departmentName;
+
     @Schema(description = "用户账号编号")
     private String userId;
 
@@ -156,6 +160,14 @@ public class Clerk implements Serializable {
 
     public void setDepartmentId(String departmentId) {
         this.departmentId = departmentId;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 
     public String getUserId() {

@@ -26,7 +26,7 @@ export const constantRoutes = [{
 {
   path: '/',
   component: Layout,
-  redirect: '/index',
+  redirect: '/employee/dashboard', // 默认重定向到员工首页，权限控制会处理具体重定向
   hidden: true
 },
 {
@@ -88,7 +88,7 @@ export const constantRoutes = [{
 export const asyncRoutes = [
   // 管理员首页
   {
-    path: '/',
+    path: '/admin',
     component: Layout,
     redirect: '/index',
     meta: {
@@ -192,7 +192,7 @@ export const asyncRoutes = [
     meta: {
       title: '员工管理',
       icon: 'el-icon-user-solid',
-      roles: ['管理员']
+      roles: ['管理员', '人事经理']
     },
     children: [{
       path: 'listClerk',
@@ -211,7 +211,7 @@ export const asyncRoutes = [
       meta: {
         title: '添加员工',
         icon: 'el-icon-plus',
-        roles: ['管理员']
+        roles: ['管理员', '人事经理']
       }
     },
     {
@@ -231,7 +231,7 @@ export const asyncRoutes = [
       meta: {
         title: '查看离职职工',
         icon: 'tree',
-        roles: ['管理员']
+        roles: ['管理员' ]
       }
     },
     {
@@ -241,7 +241,7 @@ export const asyncRoutes = [
       meta: {
         title: '修改权限',
         icon: 'tree',
-        roles: ['管理员']
+        roles: ['管理员', '人事经理']
       },
       hidden: true
     }
@@ -651,7 +651,7 @@ export const asyncRoutes = [
     },
     children: [{
       path: 'validationPassword',
-      name: '修改密码',
+      name: '验证密码',
       component: () => import('@/views/savePassword/validationPassword'),
       meta: {
         title: '修改密码',
@@ -673,7 +673,7 @@ export const asyncRoutes = [
     ]
   },
 
-  // AI办公模块路由
+  /* AI办公模块路由 */
   ...aiOfficeRoutes,
 
   // 404 page must be placed at the end !!!
@@ -685,7 +685,7 @@ export const asyncRoutes = [
 ]
 
 const createRouter = () => new Router({
-  mode: 'history', // require service support
+  mode: 'hash', // 使用hash模式避免404问题
   scrollBehavior: () => ({
     y: 0
   }),

@@ -33,17 +33,24 @@ public class Contract implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Schema(description = "签约日期")
+    @TableField("time")
     private Date startTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Schema(description = "截至日期")
+    @TableField("timeout")
     private Date endTime;
 
     @Schema(description = "员工id")
     private String clerkId;
 
+    @Schema(description = "员工姓名")
+    @TableField(exist = false)
+    private String clerkName;
+
     @Schema(description = "图片")
+    @TableField("url")
     private String photo;
 
     @Schema(description = "逻辑删除 1（true）已删除， 0（false）未删除")
@@ -96,6 +103,14 @@ public class Contract implements Serializable {
 
     public void setClerkId(String clerkId) {
         this.clerkId = clerkId;
+    }
+
+    public String getClerkName() {
+        return clerkName;
+    }
+
+    public void setClerkName(String clerkName) {
+        this.clerkName = clerkName;
     }
 
     public String getPhoto() {

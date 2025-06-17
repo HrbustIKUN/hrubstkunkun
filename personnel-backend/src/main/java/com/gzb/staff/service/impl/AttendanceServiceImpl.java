@@ -22,7 +22,9 @@ public class AttendanceServiceImpl extends ServiceImpl<AttendanceMapper, Attenda
 
     @Override
     public IPage<Attendance> pageListQuery(Page<Attendance> attendancePage, AttendanceQueryVo attendanceQueryVo) {
-        IPage<Attendance> attendanceIPage = baseMapper.pageListQuery(attendancePage,attendanceQueryVo);
-        return attendanceIPage;
+        System.out.println("Service层接收到的查询参数: " + attendanceQueryVo);
+        IPage<Attendance> result = baseMapper.pageListQuery(attendancePage,attendanceQueryVo);
+        System.out.println("查询结果数量: " + result.getRecords().size());
+        return result;
     }
 }

@@ -43,13 +43,21 @@ public class Attendance implements Serializable {
     private String reason;
 
     @Schema(description = "审核状态:0正在审核，1审核通过，2审核不通过")
-    private Integer audit;
+    private String audit;
 
     @Schema(description = "员工id")
     private String clerkId;
 
     @Schema(description = "部门编号")
     private String departmentId;
+
+    @Schema(description = "员工姓名")
+    @TableField(exist = false)
+    private String clerkName;
+
+    @Schema(description = "部门名称")
+    @TableField(exist = false)
+    private String departmentName;
 
     @Schema(description = "逻辑删除 1（true）已删除， 0（false）未删除")
     @TableLogic
@@ -103,11 +111,11 @@ public class Attendance implements Serializable {
         this.reason = reason;
     }
 
-    public Integer getAudit() {
+    public String getAudit() {
         return audit;
     }
 
-    public void setAudit(Integer audit) {
+    public void setAudit(String audit) {
         this.audit = audit;
     }
 
@@ -125,6 +133,22 @@ public class Attendance implements Serializable {
 
     public void setDepartmentId(String departmentId) {
         this.departmentId = departmentId;
+    }
+
+    public String getClerkName() {
+        return clerkName;
+    }
+
+    public void setClerkName(String clerkName) {
+        this.clerkName = clerkName;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 
     public Integer getIsDeleted() {

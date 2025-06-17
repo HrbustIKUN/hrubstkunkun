@@ -62,7 +62,12 @@ public class AIOfficeService {
         Prompt prompt = promptTemplate.create(variables);
         
         if (chatClient == null) {
-            return "AI服务暂时不可用，请稍后再试";
+            return "AI服务未配置。请设置环境变量 OPENAI_API_KEY 为您的OpenAI API密钥，然后重启服务。\n\n" +
+                   "配置步骤：\n" +
+                   "1. 获取OpenAI API密钥：https://platform.openai.com/api-keys\n" +
+                   "2. 设置环境变量：OPENAI_API_KEY=your_api_key\n" +
+                   "3. 重启后端服务\n\n" +
+                   "详细配置指南请参考项目根目录的 OPENAI_SETUP_GUIDE.md 文件。";
         }
         
         String result = chatClient.prompt(prompt).call().content();
@@ -106,7 +111,12 @@ public class AIOfficeService {
         Prompt prompt = promptTemplate.create(variables);
         
         if (chatClient == null) {
-            return "AI服务暂时不可用，请稍后再试";
+            return "AI服务未配置。请设置环境变量 OPENAI_API_KEY 为您的OpenAI API密钥，然后重启服务。\n\n" +
+                   "配置步骤：\n" +
+                   "1. 获取OpenAI API密钥：https://platform.openai.com/api-keys\n" +
+                   "2. 设置环境变量：OPENAI_API_KEY=your_api_key\n" +
+                   "3. 重启后端服务\n\n" +
+                   "详细配置指南请参考项目根目录的 OPENAI_SETUP_GUIDE.md 文件。";
         }
         
         String result = chatClient.prompt(prompt).call().content();
@@ -145,7 +155,12 @@ public class AIOfficeService {
         Prompt prompt = promptTemplate.create(variables);
         
         if (chatClient == null) {
-            return "AI服务暂时不可用，请稍后再试";
+            return "AI服务未配置。请设置环境变量 OPENAI_API_KEY 为您的OpenAI API密钥，然后重启服务。\n\n" +
+                   "配置步骤：\n" +
+                   "1. 获取OpenAI API密钥：https://platform.openai.com/api-keys\n" +
+                   "2. 设置环境变量：OPENAI_API_KEY=your_api_key\n" +
+                   "3. 重启后端服务\n\n" +
+                   "详细配置指南请参考项目根目录的 OPENAI_SETUP_GUIDE.md 文件。";
         }
         
         String result = chatClient.prompt(prompt).call().content();
@@ -186,7 +201,12 @@ public class AIOfficeService {
         Prompt prompt = promptTemplate.create(variables);
         
         if (chatClient == null) {
-            return "AI服务暂时不可用，请稍后再试";
+            return "AI服务未配置。请设置环境变量 OPENAI_API_KEY 为您的OpenAI API密钥，然后重启服务。\n\n" +
+                   "配置步骤：\n" +
+                   "1. 获取OpenAI API密钥：https://platform.openai.com/api-keys\n" +
+                   "2. 设置环境变量：OPENAI_API_KEY=your_api_key\n" +
+                   "3. 重启后端服务\n\n" +
+                   "详细配置指南请参考项目根目录的 OPENAI_SETUP_GUIDE.md 文件。";
         }
         
         String result = chatClient.prompt(prompt).call().content();
@@ -291,6 +311,16 @@ public class AIOfficeService {
         variables.put("keyPoints", keyPoints);
         
         Prompt prompt = promptTemplate.create(variables);
+        
+        if (chatClient == null) {
+            return "AI服务未配置。请设置环境变量 OPENAI_API_KEY 为您的OpenAI API密钥，然后重启服务。\n\n" +
+                   "配置步骤：\n" +
+                   "1. 获取OpenAI API密钥：https://platform.openai.com/api-keys\n" +
+                   "2. 设置环境变量：OPENAI_API_KEY=your_api_key\n" +
+                   "3. 重启后端服务\n\n" +
+                   "详细配置指南请参考项目根目录的 OPENAI_SETUP_GUIDE.md 文件。";
+        }
+        
         return chatClient.prompt(prompt).call().content();
     }
 
@@ -323,6 +353,16 @@ public class AIOfficeService {
         variables.put("resources", resources);
         
         Prompt prompt = promptTemplate.create(variables);
+        
+        if (chatClient == null) {
+            return "AI服务未配置。请设置环境变量 OPENAI_API_KEY 为您的OpenAI API密钥，然后重启服务。\n\n" +
+                   "配置步骤：\n" +
+                   "1. 获取OpenAI API密钥：https://platform.openai.com/api-keys\n" +
+                   "2. 设置环境变量：OPENAI_API_KEY=your_api_key\n" +
+                   "3. 重启后端服务\n\n" +
+                   "详细配置指南请参考项目根目录的 OPENAI_SETUP_GUIDE.md 文件。";
+        }
+        
         return chatClient.prompt(prompt).call().content();
     }
 }

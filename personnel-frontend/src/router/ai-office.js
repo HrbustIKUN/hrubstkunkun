@@ -8,7 +8,7 @@ export default [
     meta: {
       title: 'AI智能办公',
       icon: 'el-icon-cpu',
-      roles: ['admin', 'hr', 'employee'] // 所有角色都可以访问
+      roles: ['管理员', '人事经理', '职员'] // 所有角色都可以访问
     },
     children: [
       {
@@ -116,7 +116,7 @@ export default [
         meta: {
           title: 'AI设置',
           icon: 'el-icon-setting',
-          roles: ['admin'], // 仅管理员可访问
+          roles: ['管理员'], // 仅管理员可访问
           aiFunction: 'ai-configuration',
           noCache: true
         }
@@ -128,7 +128,7 @@ export default [
         meta: {
           title: '使用统计',
           icon: 'el-icon-data-line',
-          roles: ['admin', 'hr'], // 管理员和HR可访问
+          roles: ['管理员', '人事经理'], // 管理员和人事经理可访问
           aiFunction: 'usage-statistics',
           noCache: true
         }

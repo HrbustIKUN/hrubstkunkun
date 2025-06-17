@@ -13,7 +13,7 @@
         <el-input maxlength="10" show-word-limit v-model="department.name" />
       </el-form-item>
       <el-form-item label="备注">
-        <el-input v-model="department.note" />
+        <el-input v-model="department.remark" />
       </el-form-item>
 
       <el-form-item>

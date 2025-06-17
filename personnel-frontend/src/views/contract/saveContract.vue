@@ -7,18 +7,18 @@
       <el-form-item label="合同名称" prop="name">
         <el-input v-model="contract.name" />
       </el-form-item>
-      <el-form-item label="签约日期" prop="time">
+      <el-form-item label="签约日期" prop="startTime">
         <el-date-picker
-          v-model="contract.time"
+          v-model="contract.startTime"
           type="datetime"
           placeholder="请选择时间"
           value-format="yyyy-MM-dd HH:mm:ss"
         >
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="到期时间日期" prop="timeout">
+      <el-form-item label="到期时间日期" prop="endTime">
         <el-date-picker
-          v-model="contract.timeout"
+          v-model="contract.endTime"
           type="datetime"
           placeholder="请选择时间"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -37,15 +37,15 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="合同照片" prop="url">
+      <el-form-item label="合同照片" prop="photo">
         <!-- 头衔缩略图 -->
-        <pan-thumb v-if="contract.url != ''" :image="contract.url" />
+        <pan-thumb v-if="contract.photo != ''" :image="contract.photo" />
         <!-- 文件上传按钮 -->
         <el-button
           type="primary"
           icon="el-icon-upload"
           @click="imagecropperShow = true"
-          >{{ contract.url == "" ? "上传图片" : "更换图片" }}</el-button
+          >{{ contract.photo == "" ? "上传图片" : "更换图片" }}</el-button
         >
         <!--v-show：是否显示上传组件
         :key：类似于id，如果一个页面多个图片上传控件，可以做区分
@@ -86,7 +86,7 @@ export default {
     return {
       baseApi: process.env.VUE_APP_BASE_API,
       contract: {
-        url: "",
+        photo: "",
       },
       saveBtnDisabled: false, // 保存按钮是否禁用,
       saveBtnDisabled: false, // 保存按钮是否禁用,
@@ -97,14 +97,14 @@ export default {
         name: [
           { required: true, message: "请填写合同名称", trigger: "change" },
         ],
-        time: [
+        startTime: [
           { required: true, message: "请选择签约时间", trigger: "change" },
         ],
-        timeout: [
+        endTime: [
           { required: true, message: "请选择到期时间", trigger: "change" },
         ],
         clerkId: [{ required: true, message: "请选择员工", trigger: "change" }],
-        url: [{ required: true, message: "请选择合同照片", trigger: "change" }],
+        photo: [{ required: true, message: "请选择合同照片", trigger: "change" }],
       },
     };
   },
@@ -131,7 +131,7 @@ export default {
       this.imagecropperShow = false;
       //上传之后接口返回图片地址
       console.log(data);
-      this.contract.url = data.url;
+      this.contract.photo = data.url;
       this.imagecropperKey = this.imagecropperKey + 1;
     },
     //初始化

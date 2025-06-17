@@ -48,3 +48,11 @@ export default {
       },
   }
   
+// 命名导出函数，用于兼容性
+export function getDepartmentList() {
+  return request({
+    url: `/staff/department/list`,
+    method: "get"
+  })
+}
+  

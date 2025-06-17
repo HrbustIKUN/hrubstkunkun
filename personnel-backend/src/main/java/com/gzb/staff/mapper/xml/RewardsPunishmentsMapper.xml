@@ -2,23 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gzb.staff.mapper.RewardsPunishmentsMapper">
     <select id="pageListQuery" parameterType="com.gzb.staff.entity.vo.RPQueryVo" resultType="com.gzb.staff.entity.RewardsPunishments">
-        select r.id,r.time,r.money,r.reason,r.type,c.name as clerk_id,d.name as department_id
-        from clerk as c,department as d,rewards_punishments as r
-        where r.clerk_id = c.id and d.id = r.department_id and r.is_deleted = 0
-        <if test="rPQueryVo.type != null">
+        select r.id,r.time,r.amount as money,r.reason,r.type,c.name as clerkName,d.name as departmentName
+        from rewards_punishments as r
+        LEFT JOIN clerk as c ON r.clerk_id = c.id
+        LEFT JOIN department as d ON r.department_id = d.id
+        where r.is_deleted = 0 and c.is_deleted = 0 and d.is_deleted = 0
+        <if test="rPQueryVo.type != null and rPQueryVo.type != ''">
             and r.type = #{rPQueryVo.type}
         </if>
-        <if test="rPQueryVo.reason != null">
-            and r.reason like '%${rPQueryVo.reason}%'
+        <if test="rPQueryVo.reason != null and rPQueryVo.reason != ''">
+            and r.reason like CONCAT('%', #{rPQueryVo.reason}, '%')
         </if>
         <if test="rPQueryVo.money != null">
-            and r.money = #{rPQueryVo.money}
+            and r.amount = #{rPQueryVo.money}
         </if>
-        <if test="rPQueryVo.clerkName != null">
-            and c.name like '%${rPQueryVo.clerkName}%'
+        <if test="rPQueryVo.clerkName != null and rPQueryVo.clerkName != ''">
+            and c.name like CONCAT('%', #{rPQueryVo.clerkName}, '%')
         </if>
-        <if test="rPQueryVo.departmentName != null">
-            and d.name like '%${rPQueryVo.departmentName}%'
+        <if test="rPQueryVo.departmentName != null and rPQueryVo.departmentName != ''">
+            and d.name like CONCAT('%', #{rPQueryVo.departmentName}, '%')
         </if>
     </select>
 </mapper>

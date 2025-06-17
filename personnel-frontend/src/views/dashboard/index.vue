@@ -259,6 +259,7 @@ export default {
       // 管理员快捷操作
       adminQuickActions: [
         { label: '个人资料', icon: 'el-icon-user-solid', color: '#722ED1', route: '/profile', featured: true },
+        { label: 'AI智能办公', icon: 'el-icon-cpu', color: '#FF6B35', route: '/ai-office', featured: true },
         { label: '员工管理', icon: 'el-icon-user', color: '#409EFF', route: '/clerk' },
         { label: '考勤管理', icon: 'el-icon-time', color: '#67C23A', route: '/attendance' },
         { label: '部门管理', icon: 'el-icon-office-building', color: '#F56C6C', route: '/department' },
@@ -267,6 +268,7 @@ export default {
       ],
       // 超级管理员快捷操作（不包含个人资料）
       superAdminQuickActions: [
+        { label: 'AI智能办公', icon: 'el-icon-cpu', color: '#FF6B35', route: '/ai-office', featured: true },
         { label: '员工管理', icon: 'el-icon-user', color: '#409EFF', route: '/clerk', featured: true },
         { label: '考勤管理', icon: 'el-icon-time', color: '#67C23A', route: '/attendance' },
         { label: '部门管理', icon: 'el-icon-office-building', color: '#F56C6C', route: '/department' },
@@ -277,6 +279,7 @@ export default {
       // 普通员工快捷操作
       employeeQuickActions: [
         { label: '个人资料', icon: 'el-icon-user-solid', color: '#722ED1', route: '/profile', featured: true },
+        { label: 'AI智能办公', icon: 'el-icon-cpu', color: '#FF6B35', route: '/ai-office', featured: true },
         { label: '我的考勤', icon: 'el-icon-time', color: '#67C23A', route: '/attendanceInfo' },
         { label: '公告通知', icon: 'el-icon-bell', color: '#17A2B8', route: '/inform' },
         { label: '个人设置', icon: 'el-icon-setting', color: '#6C757D', route: '/personalized' },

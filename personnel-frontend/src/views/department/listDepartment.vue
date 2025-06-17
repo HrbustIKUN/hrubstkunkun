@@ -13,7 +13,7 @@
       </el-table-column>
       <el-table-column prop="id" sortable label="部门编号" width="200" />
       <el-table-column prop="name" sortable label="部门名称" width="100" />
-      <el-table-column prop="note" label="备注" />
+      <el-table-column prop="remark" label="备注" />
       <el-table-column prop="gmtCreate" sortable label="创建时间" width="160" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">

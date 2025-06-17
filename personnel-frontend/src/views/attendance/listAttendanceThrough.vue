@@ -67,8 +67,8 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="clerkId" sortable label="员工姓名" />
-      <el-table-column prop="departmentId" sortable label="员工部门" />
+      <el-table-column prop="clerkName" sortable label="员工姓名" />
+      <el-table-column prop="departmentName" sortable label="员工部门" />
       <el-table-column prop="reason" label="原因" width="200">
         <template slot-scope="scope">
           <span>{{ scope.row.reason || '无' }}</span>
@@ -110,8 +110,12 @@ export default {
   data() {
     return {
       downloadLoading: false,
-      //            事假1,迟到2,早退3,病假4,旷工5,休补6
+      //            正常0,事假1,迟到2,早退3,病假4,旷工5,休补6
       options: [
+        {
+          value: "0",
+          label: "正常",
+        },
         {
           value: "1",
           label: "事假",
@@ -188,6 +192,7 @@ export default {
     // 获取考勤类型文本
     getTypeText(type) {
       const typeMap = {
+        0: '正常',
         1: '事假',
         2: '迟到', 
         3: '早退',
@@ -200,6 +205,7 @@ export default {
     // 获取考勤类型标签颜色
     getTypeTagType(type) {
       const tagTypeMap = {
+        0: 'success',  // 正常
         1: 'warning',  // 事假
         2: 'danger',   // 迟到
         3: 'danger',   // 早退
@@ -212,7 +218,9 @@ export default {
     resetData() {
       //清空的方法
       //表单数据清空
-      this.attendanceQueryVo = {};
+      this.attendanceQueryVo = {
+        audit: '1'  // 保持audit为1，确保只查询审核通过的记录
+      };
       //查询所有
       this.getAttendanceListPage();
     },
@@ -231,9 +239,6 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    },
-    resetData() {
-      this.getAttendanceListPage();
     },
     deleteAttendanceById(id) {
       //删除功能

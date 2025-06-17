@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 获取AI功能列表
 export function getAIFunctions() {
   return request({
-    url: '/ai-office/functions',
+    url: '/staff/ai-office/functions',
     method: 'get'
   })
 }
@@ -11,7 +11,7 @@ export function getAIFunctions() {
 // 获取文档类型列表
 export function getDocumentTypes() {
   return request({
-    url: '/ai-office/document-types',
+    url: '/staff/ai-office/document-types',
     method: 'get'
   })
 }
@@ -19,7 +19,7 @@ export function getDocumentTypes() {
 // 获取分析类型列表
 export function getAnalysisTypes() {
   return request({
-    url: '/ai-office/analysis-types',
+    url: '/staff/ai-office/analysis-types',
     method: 'get'
   })
 }
@@ -27,61 +27,61 @@ export function getAnalysisTypes() {
 // 生成智能文档
 export function generateDocument(data) {
   return request({
-    url: '/ai-office/generate-document',
+    url: '/staff/ai-office/generate-document',
     method: 'post',
-    data: data
+    data
   })
 }
 
 // 生成数据分析报告
 export function generateDataAnalysis(data) {
   return request({
-    url: '/ai-office/generate-analysis',
+    url: '/staff/ai-office/generate-analysis',
     method: 'post',
-    data: data
+    data
   })
 }
 
 // 智能问答
 export function intelligentQA(data) {
   return request({
-    url: '/ai-office/intelligent-qa',
+    url: '/staff/ai-office/intelligent-qa',
     method: 'post',
-    data: data
+    data
   })
 }
 
 // 生成邮件
 export function generateEmail(data) {
   return request({
-    url: '/ai-office/generate-email',
+    url: '/staff/ai-office/generate-email',
     method: 'post',
-    data: data
+    data
   })
 }
 
 // 生成会议纪要
 export function generateMeetingMinutes(data) {
   return request({
-    url: '/ai-office/generate-meeting-minutes',
+    url: '/staff/ai-office/generate-meeting-minutes',
     method: 'post',
-    data: data
+    data
   })
 }
 
 // 生成工作计划
 export function generateWorkPlan(data) {
   return request({
-    url: '/ai-office/generate-work-plan',
+    url: '/staff/ai-office/generate-work-plan',
     method: 'post',
-    data: data
+    data
   })
 }
 
 // 获取用户对话历史
 export function getConversationHistory(userId, limit = 20) {
   return request({
-    url: `/ai-office/conversation-history/${userId}`,
+    url: `/staff/ai-office/conversation-history/${userId}`,
     method: 'get',
     params: {
       limit: limit
@@ -92,7 +92,7 @@ export function getConversationHistory(userId, limit = 20) {
 // 获取文档模板列表
 export function getDocumentTemplates(params) {
   return request({
-    url: '/ai-office/templates',
+    url: '/staff/ai-office/templates',
     method: 'get',
     params: params
   })
@@ -101,7 +101,7 @@ export function getDocumentTemplates(params) {
 // 保存自定义模板
 export function saveCustomTemplate(data) {
   return request({
-    url: '/ai-office/save-template',
+    url: '/staff/ai-office/save-template',
     method: 'post',
     data: data
   })
@@ -110,7 +110,7 @@ export function saveCustomTemplate(data) {
 // 从模板生成文档
 export function generateDocumentFromTemplate(data) {
   return request({
-    url: '/ai-office/generate-from-template',
+    url: '/staff/ai-office/generate-from-template',
     method: 'post',
     data: data
   })
@@ -119,7 +119,7 @@ export function generateDocumentFromTemplate(data) {
 // AI办公统计数据
 export function getAIOfficeStats(userId) {
   return request({
-    url: `/ai-office/stats/${userId}`,
+    url: `/staff/ai-office/stats/${userId}`,
     method: 'get'
   })
 }
@@ -127,7 +127,7 @@ export function getAIOfficeStats(userId) {
 // 获取AI配置信息
 export function getAIConfig() {
   return request({
-    url: '/ai-office/config',
+    url: '/staff/ai-office/config',
     method: 'get'
   })
 }
@@ -135,7 +135,7 @@ export function getAIConfig() {
 // 更新AI配置（管理员功能）
 export function updateAIConfig(data) {
   return request({
-    url: '/ai-office/config',
+    url: '/staff/ai-office/config',
     method: 'put',
     data: data
   })
@@ -144,7 +144,7 @@ export function updateAIConfig(data) {
 // 批量删除对话历史
 export function deleteConversationHistory(historyIds) {
   return request({
-    url: '/ai-office/conversation-history',
+    url: '/staff/ai-office/conversation-history',
     method: 'delete',
     data: {
       historyIds: historyIds
@@ -155,26 +155,26 @@ export function deleteConversationHistory(historyIds) {
 // 导出对话历史
 export function exportConversationHistory(userId, params) {
   return request({
-    url: `/ai-office/conversation-history/${userId}/export`,
+    url: `/staff/ai-office/conversation-history/${userId}/export`,
     method: 'get',
     params: params,
     responseType: 'blob'
   })
 }
 
-// 获取AI使用统计报告
+// 获取AI使用统计报告// 获取使用报告
 export function getUsageReport(params) {
   return request({
-    url: '/ai-office/usage-report',
+    url: '/staff/ai-office/usage-report',
     method: 'get',
-    params: params
+    params
   })
 }
 
-// 检查AI服务状态
-export function checkAIServiceStatus() {
+// 获取服务状态
+export function getServiceStatus() {
   return request({
-    url: '/ai-office/service-status',
+    url: '/staff/ai-office/service-status',
     method: 'get'
   })
 }
@@ -182,65 +182,59 @@ export function checkAIServiceStatus() {
 // 重置AI会话
 export function resetAISession(userId) {
   return request({
-    url: `/ai-office/reset-session/${userId}`,
+    url: `/staff/ai-office/reset-session/${userId}`,
     method: 'post'
   })
 }
 
-// 获取AI模型列表
-export function getAIModels() {
+// 获取可用模型列表
+export function getAvailableModels() {
   return request({
-    url: '/ai-office/models',
+    url: '/staff/ai-office/models',
     method: 'get'
   })
 }
 
 // 切换AI模型
-export function switchAIModel(modelName) {
+export function switchAIModel(data) {
   return request({
-    url: '/ai-office/switch-model',
+    url: '/staff/ai-office/switch-model',
     method: 'post',
-    data: {
-      modelName: modelName
-    }
+    data
   })
 }
 
-// 获取AI提示词模板
-export function getPromptTemplates(category) {
+// 获取提示词模板
+export function getPromptTemplates(type) {
   return request({
-    url: '/ai-office/prompt-templates',
+    url: '/staff/ai-office/prompt-templates',
     method: 'get',
-    params: {
-      category: category
-    }
+    params: { type }
   })
 }
 
-// 保存AI提示词模板
+// 保存提示词模板
 export function savePromptTemplate(data) {
   return request({
-    url: '/ai-office/prompt-templates',
+    url: '/staff/ai-office/prompt-templates',
     method: 'post',
-    data: data
+    data
   })
 }
 
-// AI内容审核
-export function moderateContent(content) {
+// 内容审核
+export function moderateContent(data) {
   return request({
-    url: '/ai-office/moderate',
+    url: '/staff/ai-office/moderate',
     method: 'post',
-    data: {
-      content: content
-    }
+    data
   })
 }
 
 // 获取AI使用配额
 export function getUsageQuota(userId) {
   return request({
-    url: `/ai-office/quota/${userId}`,
+    url: `/staff/ai-office/quota/${userId}`,
     method: 'get'
   })
 }
@@ -248,35 +242,43 @@ export function getUsageQuota(userId) {
 // 文本翻译
 export function translateText(data) {
   return request({
-    url: '/ai-office/translate',
+    url: '/staff/ai-office/translate',
     method: 'post',
-    data: data
+    data
   })
 }
 
 // 文本摘要
 export function summarizeText(data) {
   return request({
-    url: '/ai-office/summarize',
+    url: '/staff/ai-office/summarize',
     method: 'post',
-    data: data
+    data
   })
 }
 
 // 关键词提取
 export function extractKeywords(data) {
   return request({
-    url: '/ai-office/extract-keywords',
+    url: '/staff/ai-office/extract-keywords',
     method: 'post',
-    data: data
+    data
   })
 }
 
 // 情感分析
-export function analyzeSentiment(data) {
+export function sentimentAnalysis(data) {
   return request({
-    url: '/ai-office/sentiment-analysis',
+    url: '/staff/ai-office/sentiment-analysis',
     method: 'post',
-    data: data
+    data
+  })
+}
+
+// 检查AI服务状态
+export function checkAIServiceStatus() {
+  return request({
+    url: '/staff/ai-office/service-status',
+    method: 'get'
   })
 }

@@ -2,22 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gzb.staff.mapper.AttendanceMapper">
     <select id="pageListQuery" parameterType="com.gzb.staff.entity.vo.AttendanceQueryVo" resultType="com.gzb.staff.entity.Attendance">
-        select a.id,a.name,a.time,a.status,a.audit,a.reason,d.name as department_id,c.name as clerk_id
-        from attendance as a,department as d,clerk as c
-        where a.clerk_id = c.id and d.id = a.department_id and a.is_deleted = 0
-        <if test="attendanceQueryVo.name != null">
-            and a.name like '%${attendanceQueryVo.name}%'
+        select a.id,a.name,a.time,a.status,a.audit,a.reason,d.name as departmentName,c.name as clerkName
+        from attendance as a
+        LEFT JOIN clerk as c ON a.clerk_id = c.id
+        LEFT JOIN department as d ON a.department_id = d.id
+        where a.is_deleted = 0 and c.is_deleted = 0 and d.is_deleted = 0
+        <if test="attendanceQueryVo.name != null and attendanceQueryVo.name != ''">
+            and a.name like CONCAT('%', #{attendanceQueryVo.name}, '%')
         </if>
-        <if test="attendanceQueryVo.status != null">
+        <if test="attendanceQueryVo.status != null and attendanceQueryVo.status != ''">
             and a.status = #{attendanceQueryVo.status}
         </if>
-        <if test="attendanceQueryVo.clerkName != null">
-            and c.name like '%${attendanceQueryVo.clerkName}%'
+        <if test="attendanceQueryVo.clerkName != null and attendanceQueryVo.clerkName != ''">
+            and c.name like CONCAT('%', #{attendanceQueryVo.clerkName}, '%')
         </if>
-        <if test="attendanceQueryVo.departmentName != null">
-            and d.name like '%${attendanceQueryVo.departmentName}%'
+        <if test="attendanceQueryVo.departmentName != null and attendanceQueryVo.departmentName != ''">
+            and d.name like CONCAT('%', #{attendanceQueryVo.departmentName}, '%')
         </if>
-        <if test="attendanceQueryVo.audit != null">
+        <if test="attendanceQueryVo.audit != null and attendanceQueryVo.audit != ''">
             and a.audit = #{attendanceQueryVo.audit}
         </if>
     </select>

@@ -39,7 +39,7 @@
       <el-table-column prop="name" sortable label="员工姓名"  />
       <el-table-column prop="position" sortable label="员工职位" />
       <el-table-column
-        prop="departmentId"
+        prop="departmentName"
         sortable
         label="员工部门"
         width="100"

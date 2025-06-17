@@ -1,174 +1,156 @@
 <template>
-  <div class="document-generator-container">
-    <el-row :gutter="20">
-      <!-- 左侧：文档生成表单 -->
-      <el-col :span="12">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>智能文档生成</span>
-          </div>
-          
-          <el-form ref="documentForm" :model="documentForm" label-width="100px">
-            <el-form-item label="文档类型">
-              <el-select v-model="documentForm.type" placeholder="请选择文档类型" @change="handleTypeChange">
-                <el-option label="工作报告" value="work-report" />
-                <el-option label="项目计划" value="project-plan" />
-                <el-option label="会议纪要" value="meeting-minutes" />
-                <el-option label="培训材料" value="training-material" />
-                <el-option label="政策文档" value="policy-document" />
-                <el-option label="技术文档" value="technical-document" />
-                <el-option label="自定义" value="custom" />
-              </el-select>
-            </el-form-item>
-            
-            <el-form-item label="文档标题">
-              <el-input v-model="documentForm.title" placeholder="请输入文档标题" />
-            </el-form-item>
-            
-            <el-form-item label="目标受众">
-              <el-select v-model="documentForm.audience" placeholder="请选择目标受众">
-                <el-option label="管理层" value="management" />
-                <el-option label="员工" value="employees" />
-                <el-option label="客户" value="clients" />
-                <el-option label="合作伙伴" value="partners" />
-                <el-option label="公众" value="public" />
-              </el-select>
-            </el-form-item>
-            
-            <el-form-item label="文档长度">
-              <el-radio-group v-model="documentForm.length">
-                <el-radio label="short">简短 (500字以内)</el-radio>
-                <el-radio label="medium">中等 (500-1500字)</el-radio>
-                <el-radio label="long">详细 (1500字以上)</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            
-            <el-form-item label="写作风格">
-              <el-select v-model="documentForm.style" placeholder="请选择写作风格">
-                <el-option label="正式" value="formal" />
-                <el-option label="友好" value="friendly" />
-                <el-option label="技术性" value="technical" />
-                <el-option label="简洁" value="concise" />
-                <el-option label="详细" value="detailed" />
-              </el-select>
-            </el-form-item>
-            
-            <el-form-item label="关键信息">
-              <el-input
-                v-model="documentForm.keyPoints"
-                type="textarea"
-                :rows="4"
-                placeholder="请输入文档的关键信息、要点或大纲"
-              />
-            </el-form-item>
-            
-            <el-form-item label="参考资料">
-              <el-input
-                v-model="documentForm.references"
-                type="textarea"
-                :rows="3"
-                placeholder="可选：提供相关的参考资料或背景信息"
-              />
-            </el-form-item>
-            
-            <el-form-item>
-              <el-button type="primary" @click="generateDocument" :loading="loading">生成文档</el-button>
-              <el-button @click="resetForm">重置</el-button>
-              <el-button @click="useTemplate">使用模板</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </el-col>
-      
-      <!-- 右侧：生成结果 -->
-      <el-col :span="12">
-        <el-card class="result-card">
-          <div slot="header" class="clearfix">
-            <span>生成结果</span>
-            <div style="float: right;">
-              <el-button size="mini" @click="copyDocument" :disabled="!generatedDocument">复制</el-button>
-              <el-button size="mini" @click="downloadDocument" :disabled="!generatedDocument">下载</el-button>
-              <el-button size="mini" @click="saveTemplate" :disabled="!generatedDocument">保存为模板</el-button>
-            </div>
-          </div>
-          
-          <div v-if="loading" class="loading-container">
-            <el-icon class="is-loading"><i class="el-icon-loading"></i></el-icon>
-            <p>AI正在生成文档，请稍候...</p>
-          </div>
-          
-          <div v-else-if="generatedDocument" class="document-content">
-            <div class="document-header">
-              <h2>{{ generatedDocument.title }}</h2>
-              <div class="document-meta">
-                <span>类型: {{ getTypeLabel(generatedDocument.type) }}</span>
-                <span>生成时间: {{ generatedDocument.createdAt }}</span>
-                <span>字数: {{ generatedDocument.wordCount }}</span>
-              </div>
-            </div>
-            
-            <div class="document-body" v-html="generatedDocument.content"></div>
-          </div>
-          
-          <div v-else class="empty-state">
-            <el-empty description="请填写左侧表单生成文档"></el-empty>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-    
-    <!-- 历史文档 -->
-    <el-card class="history-card">
+  <div class="document-generator">
+    <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>历史文档</span>
+        <span class="card-title">
+          <i class="el-icon-document"></i>
+          智能文档生成
+        </span>
       </div>
-      
-      <el-table :data="historyDocuments" style="width: 100%">
-        <el-table-column prop="title" label="文档标题" />
-        <el-table-column prop="type" label="类型">
-          <template slot-scope="scope">
-            {{ getTypeLabel(scope.row.type) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="wordCount" label="字数" />
-        <el-table-column prop="createdAt" label="创建时间" />
-        <el-table-column label="操作">
-          <template slot-scope="scope">
-            <el-button size="mini" @click="viewDocument(scope.row)">查看</el-button>
-            <el-button size="mini" @click="editDocument(scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="deleteDocument(scope.row.id)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+
+      <el-form :model="documentForm" :rules="rules" ref="documentForm" label-width="120px">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="文档类型" prop="type">
+              <el-select v-model="documentForm.type" placeholder="请选择文档类型" style="width: 100%">
+                <el-option 
+                  v-for="type in documentTypes" 
+                  :key="type" 
+                  :label="type" 
+                  :value="type">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="所属部门" prop="department">
+              <el-input v-model="documentForm.department" placeholder="请输入部门名称"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="文档标题" prop="title">
+          <el-input v-model="documentForm.title" placeholder="请输入文档标题"></el-input>
+        </el-form-item>
+
+        <el-form-item label="内容要点" prop="keyPoints">
+          <el-input 
+            type="textarea" 
+            v-model="documentForm.keyPoints" 
+            :rows="6" 
+            placeholder="请详细描述文档的主要内容要点，包括：&#10;1. 背景情况&#10;2. 主要内容&#10;3. 具体要求&#10;4. 预期目标等">
+          </el-input>
+        </el-form-item>
+
+        <el-form-item label="特殊要求">
+          <el-input 
+            type="textarea" 
+            v-model="documentForm.references" 
+            :rows="3" 
+            placeholder="如有特殊格式要求、字数限制、风格要求等，请在此说明">
+          </el-input>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" @click="generateDocument" :loading="loading" size="medium">
+            <i class="el-icon-magic-stick"></i>
+            生成文档
+          </el-button>
+          <el-button @click="resetForm" size="medium">重置</el-button>
+          <el-button @click="useTemplate" size="medium">
+            <i class="el-icon-folder-opened"></i>
+            使用模板
+          </el-button>
+        </el-form-item>
+      </el-form>
+
+      <!-- 生成结果 -->
+      <div v-if="generatedDocument" class="result-section">
+        <el-divider content-position="left">
+          <span class="result-title">生成结果</span>
+        </el-divider>
+        
+        <div class="result-toolbar">
+          <el-button size="small" @click="copyDocument">
+            <i class="el-icon-document-copy"></i>
+            复制内容
+          </el-button>
+          <el-button size="small" @click="downloadDocument">
+            <i class="el-icon-download"></i>
+            下载文档
+          </el-button>
+          <el-button size="small" @click="saveAsTemplate">
+            <i class="el-icon-folder-add"></i>
+            保存为模板
+          </el-button>
+          <el-button size="small" @click="generateDocument">
+            <i class="el-icon-refresh"></i>
+            重新生成
+          </el-button>
+        </div>
+
+        <div class="result-content">
+          <div class="document-preview" v-html="generatedDocument.content"></div>
+        </div>
+      </div>
     </el-card>
-    
+
     <!-- 模板选择对话框 -->
-    <el-dialog title="选择模板" :visible.sync="templateDialogVisible" width="60%">
+    <el-dialog title="选择文档模板" :visible.sync="templateDialogVisible" width="60%">
       <el-row :gutter="20">
         <el-col :span="8" v-for="template in templates" :key="template.id">
           <el-card class="template-card" @click.native="selectTemplate(template)">
             <div class="template-info">
-              <h4>{{ template.name }}</h4>
+              <h4>{{ template.templateName }}</h4>
               <p>{{ template.description }}</p>
               <div class="template-meta">
-                <span>类型: {{ getTypeLabel(template.type) }}</span>
-                <span>使用次数: {{ template.usageCount }}</span>
+                <span class="template-type">{{ template.templateType }}</span>
+                <span class="template-creator">{{ template.creatorName }}</span>
               </div>
             </div>
           </el-card>
         </el-col>
       </el-row>
     </el-dialog>
+
+    <!-- 保存模板对话框 -->
+    <el-dialog title="保存为模板" :visible.sync="saveTemplateDialogVisible" width="40%">
+      <el-form :model="templateForm" label-width="100px">
+        <el-form-item label="模板名称">
+          <el-input v-model="templateForm.templateName" placeholder="请输入模板名称"></el-input>
+        </el-form-item>
+        <el-form-item label="模板描述">
+          <el-input type="textarea" v-model="templateForm.description" :rows="3" placeholder="请描述模板的用途和特点"></el-input>
+        </el-form-item>
+        <el-form-item label="适用角色">
+          <el-select v-model="templateForm.roleType" placeholder="请选择适用角色">
+            <el-option label="所有角色" value="all"></el-option>
+            <el-option label="管理员" value="管理员"></el-option>
+            <el-option label="人事经理" value="人事经理"></el-option>
+            <el-option label="职员" value="职员"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="saveTemplateDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmSaveTemplate" :loading="saving">保存</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { generateDocument, getDocumentTemplates, saveCustomTemplate } from '@/api/ai-office'
+import { getUserInfo } from '@/utils/auth'
+
 export default {
   name: 'DocumentGenerator',
   data() {
     return {
       loading: false,
+      saving: false,
       templateDialogVisible: false,
+      saveTemplateDialogVisible: false,
       documentForm: {
         type: '',
         title: '',
@@ -178,39 +160,29 @@ export default {
         keyPoints: '',
         references: ''
       },
+      templateForm: {
+        templateName: '',
+        description: '',
+        roleType: 'all'
+      },
       generatedDocument: null,
-      historyDocuments: [
-        {
-          id: 1,
-          title: '2024年第一季度工作报告',
-          type: 'work-report',
-          wordCount: 1200,
-          createdAt: '2024-01-15 14:30:00'
-        },
-        {
-          id: 2,
-          title: '新员工培训计划',
-          type: 'training-material',
-          wordCount: 800,
-          createdAt: '2024-01-14 09:15:00'
-        }
+      historyDocuments: [],
+      templates: [],
+      documentTypes: [
+        '工作报告',
+        '项目计划',
+        '会议纪要',
+        '培训材料',
+        '政策文档',
+        '技术文档',
+        '通知公告',
+        '合同协议'
       ],
-      templates: [
-        {
-          id: 1,
-          name: '工作报告模板',
-          type: 'work-report',
-          description: '标准的工作报告格式，包含工作总结、成果展示和下期计划',
-          usageCount: 25
-        },
-        {
-          id: 2,
-          name: '项目计划模板',
-          type: 'project-plan',
-          description: '完整的项目计划文档，包含目标、时间线、资源分配等',
-          usageCount: 18
-        }
-      ],
+      rules: {
+        type: [{ required: true, message: '请选择文档类型', trigger: 'change' }],
+        title: [{ required: true, message: '请输入文档标题', trigger: 'blur' }],
+        keyPoints: [{ required: true, message: '请输入内容要点', trigger: 'blur' }]
+      },
       typeLabels: {
         'work-report': '工作报告',
         'project-plan': '项目计划',
@@ -243,27 +215,49 @@ export default {
         Object.assign(this.documentForm, defaults)
       }
     },
-    generateDocument() {
-      if (!this.documentForm.type || !this.documentForm.title) {
-        this.$message.warning('请选择文档类型并输入标题')
+    async generateDocument() {
+      // 表单验证
+      const valid = await this.$refs.documentForm.validate().catch(() => false)
+      if (!valid) {
         return
       }
       
       this.loading = true
       
-      // 模拟AI生成过程
-      setTimeout(() => {
+      try {
+        const requestData = {
+          documentType: this.documentForm.type,
+          title: this.documentForm.title,
+          content: this.documentForm.keyPoints || '',
+          requirements: this.documentForm.references || '',
+          userId: getUserInfo().userId
+        }
+        
+        const response = await generateDocument(requestData)
+        
         this.generatedDocument = {
           title: this.documentForm.title,
           type: this.documentForm.type,
-          content: this.generateSampleContent(),
-          wordCount: 1200,
+          content: response.data,
+          wordCount: response.data.length,
           createdAt: new Date().toLocaleString()
         }
         
-        this.loading = false
         this.$message.success('文档生成成功')
-      }, 3000)
+        
+        // 滚动到结果区域
+        this.$nextTick(() => {
+          const resultElement = document.querySelector('.result-section')
+          if (resultElement) {
+            resultElement.scrollIntoView({ behavior: 'smooth' })
+          }
+        })
+      } catch (error) {
+        console.error('生成文档失败:', error)
+        this.$message.error('生成文档失败，请稍后重试')
+      } finally {
+        this.loading = false
+      }
     },
     generateSampleContent() {
       return `
@@ -324,9 +318,66 @@ export default {
         this.$message.success('删除成功')
       })
     },
+    
+    // 加载模板
+    async loadTemplates() {
+      try {
+        const response = await getDocumentTemplates()
+        this.templates = response.data || []
+      } catch (error) {
+        console.error('加载模板失败:', error)
+      }
+    },
+    
+    // 保存为模板
+    saveAsTemplate() {
+      if (!this.generatedDocument) {
+        this.$message.warning('请先生成文档')
+        return
+      }
+      this.templateForm.templateName = this.generatedDocument.title
+      this.saveTemplateDialogVisible = true
+    },
+    
+    // 确认保存模板
+    async confirmSaveTemplate() {
+      if (!this.templateForm.templateName) {
+        this.$message.warning('请输入模板名称')
+        return
+      }
+      
+      this.saving = true
+      
+      try {
+        const templateData = {
+          templateName: this.templateForm.templateName,
+          templateType: this.generatedDocument.type,
+          templateContent: this.generatedDocument.content,
+          description: this.templateForm.description,
+          roleType: this.templateForm.roleType,
+          creatorId: getUserInfo().userId,
+          creatorName: getUserInfo().nickName
+        }
+        
+        await saveCustomTemplate(templateData)
+        this.$message.success('模板保存成功')
+        this.saveTemplateDialogVisible = false
+        this.loadTemplates() // 重新加载模板列表
+      } catch (error) {
+        console.error('保存模板失败:', error)
+        this.$message.error('保存模板失败，请稍后重试')
+      } finally {
+        this.saving = false
+      }
+    },
+    
     getTypeLabel(type) {
       return this.typeLabels[type] || type
     }
+  },
+  
+  created() {
+    this.loadTemplates()
   }
 }
 </script>

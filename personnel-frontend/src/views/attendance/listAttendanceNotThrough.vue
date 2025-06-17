@@ -58,8 +58,8 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="clerkId" sortable label="员工姓名" />
-      <el-table-column prop="departmentId" sortable label="员工部门" />
+      <el-table-column prop="clerkName" sortable label="员工姓名" />
+      <el-table-column prop="departmentName" sortable label="员工部门" />
       <el-table-column prop="reason" label="原因" width="200">
         <template slot-scope="scope">
           <span>{{ scope.row.reason || '无' }}</span>
@@ -101,8 +101,12 @@ import attendance from "@/api/attendance";
 export default {
   data() {
     return {
-      //            事假1,迟到2,早退3,病假4,旷工5,休补6
+      //            正常0,事假1,迟到2,早退3,病假4,旷工5,休补6
       options: [
+        {
+          value: "0",
+          label: "正常",
+        },
         {
           value: "1",
           label: "事假",
@@ -142,10 +146,10 @@ export default {
     this.getAttendanceListPage();
   },
   methods: {
-},
     // 获取考勤类型文本
     getTypeText(type) {
       const typeMap = {
+        0: '正常',
         1: '事假',
         2: '迟到', 
         3: '早退',
@@ -158,6 +162,7 @@ export default {
     // 获取考勤类型标签颜色
     getTypeTagType(type) {
       const tagTypeMap = {
+        0: 'success',  // 正常
         1: 'warning',  // 事假
         2: 'danger',   // 迟到
         3: 'danger',   // 早退
@@ -170,7 +175,9 @@ export default {
     resetData() {
       //清空的方法
       //表单数据清空
-      this.attendanceQueryVo = {};
+      this.attendanceQueryVo = {
+        audit: '2'  // 保持audit为2，确保只查询未通过审核的记录
+      };
       //查询所有
       this.getAttendanceListPage();
     },
@@ -178,6 +185,7 @@ export default {
     //列表方法
     getAttendanceListPage(page = 1) {
       this.page = page;
+      console.log('查询参数:', this.attendanceQueryVo);
       attendance
         .getAttendanceListPage(
           this.page,
@@ -187,15 +195,13 @@ export default {
         .then((response) => {
           //请求成功
           //response接口返回的数据
+          console.log('API响应:', response.data);
           this.list = response.data.attendanceList;
           this.total = response.data.total;
         })
         .catch((error) => {
-          console.log(error);
+          console.log('API错误:', error);
         });
-    },
-    resetData() {
-      this.getAttendanceListPage();
     },
     deleteAttendanceById(id) {
       //删除功能
@@ -225,7 +231,7 @@ export default {
           });
       });
     },
-  }
-
+  },
+};
 </script>
 

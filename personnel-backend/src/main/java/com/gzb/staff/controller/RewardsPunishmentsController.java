@@ -106,16 +106,20 @@ public class RewardsPunishmentsController {
                                    @PathVariable long limit,
                                    @RequestBody(required = false) RPQueryVo rpQueryVo,
                                    @RequestHeader("X-Token") String token) {
+        System.out.println("个人奖惩查询 - 接收到的参数: " + rpQueryVo);
         String id = JwtUtils.getMemberIdByToken(token);
+        System.out.println("从token解析的用户ID: " + id);
         QueryWrapper<Clerk> clerkQueryWrapper = new QueryWrapper<>();
-        clerkQueryWrapper.eq("user_id",id);
+        clerkQueryWrapper.eq("user_id",id).eq("is_deleted",0);
         Clerk clerk = clerkService.getOne(clerkQueryWrapper);
         if (clerk == null) {
+            System.out.println("员工信息不存在，用户ID: " + id);
             return R.error().message("员工信息不存在");
         }
         String clerkId = clerk.getId();
+        System.out.println("找到员工ID: " + clerkId);
         QueryWrapper<RewardsPunishments> rewardsPunishmentsQueryWrapper = new QueryWrapper<>();
-        rewardsPunishmentsQueryWrapper.eq("clerk_id",clerkId);
+        rewardsPunishmentsQueryWrapper.eq("clerk_id",clerkId).eq("is_deleted",0);
         Page<RewardsPunishments> rewardsPunishmentsPage = new Page<>(current,limit);
         if (!StringUtils.isEmpty(rpQueryVo.getType())) {
             rewardsPunishmentsQueryWrapper.eq("type",rpQueryVo.getType());
@@ -124,15 +128,17 @@ public class RewardsPunishmentsController {
             rewardsPunishmentsQueryWrapper.like("reason",rpQueryVo.getReason());
         }
         if (rpQueryVo.getMoney() != null) {
-            rewardsPunishmentsQueryWrapper.eq("money",rpQueryVo.getMoney());
+            rewardsPunishmentsQueryWrapper.eq("amount",rpQueryVo.getMoney());
         }
         rewardsPunishmentsService.page(rewardsPunishmentsPage,rewardsPunishmentsQueryWrapper);
         List<RewardsPunishments> rewardsPunishmentsList = rewardsPunishmentsPage.getRecords();
+        System.out.println("查询到奖惩记录数量: " + rewardsPunishmentsList.size());
         for (RewardsPunishments rewardsPunishments:rewardsPunishmentsList) {
             // 类型保持为数字，前端处理显示
             // type: 0-奖励, 1-惩罚
         }
         long total = rewardsPunishmentsPage.getTotal();
+        System.out.println("奖惩记录总数: " + total);
         return R.ok().data("rewardsPunishmentsList",rewardsPunishmentsList).data("total",total);
     }
 }

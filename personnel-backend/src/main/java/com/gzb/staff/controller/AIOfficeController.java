@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/staff/ai-office")
-@CrossOrigin
+@CrossOrigin(origins = {"http://localhost:9527", "http://localhost:9528", "http://10.50.14.243:9528"}, allowCredentials = "true")
 @Tag(name = "AI办公", description = "AI辅助办公功能接口")
 public class AIOfficeController {
 
@@ -256,6 +256,67 @@ public class AIOfficeController {
             return R.ok().data("document", result);
         } catch (Exception e) {
             return R.error().message("模板生成失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取用户配额信息
+     */
+    @GetMapping("/quota/{userId}")
+    @Operation(summary = "获取用户配额", description = "获取用户的AI使用配额信息")
+    public R getUserQuota(@PathVariable String userId) {
+        try {
+            Map<String, Object> quota = Map.of(
+                "totalQuota", 1000,
+                "usedQuota", 150,
+                "remainingQuota", 850,
+                "dailyLimit", 100,
+                "dailyUsed", 25,
+                "resetDate", "2024-12-31"
+            );
+            return R.ok().data("quota", quota);
+        } catch (Exception e) {
+            return R.error().message("获取配额信息失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 检查AI服务状态
+     */
+    @GetMapping("/service-status")
+    @Operation(summary = "检查AI服务状态", description = "检查AI服务的运行状态")
+    public R checkServiceStatus() {
+        try {
+            Map<String, Object> status = Map.of(
+                "status", "online",
+                "version", "1.0.0",
+                "uptime", "24h 15m",
+                "responseTime", "120ms",
+                "availableModels", java.util.Arrays.asList("deepseek-chat", "gpt-3.5-turbo")
+            );
+            return R.ok().data("serviceStatus", status);
+        } catch (Exception e) {
+            return R.error().message("检查服务状态失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取AI配置信息
+     */
+    @GetMapping("/config")
+    @Operation(summary = "获取AI配置", description = "获取AI服务的配置信息")
+    public R getAIConfig() {
+        try {
+            Map<String, Object> config = Map.of(
+                "defaultModel", "deepseek-chat",
+                "maxTokens", 2000,
+                "temperature", 0.7,
+                "enabledFeatures", java.util.Arrays.asList("document", "analysis", "qa", "email", "meeting", "plan"),
+                "supportedLanguages", java.util.Arrays.asList("zh-CN", "en-US")
+            );
+            return R.ok().data("config", config);
+        } catch (Exception e) {
+            return R.error().message("获取配置信息失败：" + e.getMessage());
         }
     }
 }

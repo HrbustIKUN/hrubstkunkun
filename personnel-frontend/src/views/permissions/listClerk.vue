@@ -100,7 +100,7 @@
       <el-table-column prop="position" sortable label="员工职位" width="120" />
       <el-table-column prop="email" sortable label="邮箱" min-width="200" show-overflow-tooltip />
       <el-table-column
-        prop="departmentId"
+        prop="departmentName"
         sortable
         label="员工部门"
         width="100"

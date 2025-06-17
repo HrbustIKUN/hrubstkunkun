@@ -98,17 +98,22 @@ public class ContractController {
     //查询自身
     @PostMapping("getContract")
     public R getContract(@RequestHeader("X-Token") String token) {
+        System.out.println("个人合同查询开始");
         String id = JwtUtils.getMemberIdByToken(token);
+        System.out.println("从token解析的用户ID: " + id);
         QueryWrapper<Clerk> clerkQueryWrapper = new QueryWrapper<>();
-        clerkQueryWrapper.eq("user_id",id);
+        clerkQueryWrapper.eq("user_id",id).eq("is_deleted",0);
         Clerk clerk = clerkService.getOne(clerkQueryWrapper);
         if (clerk == null) {
+            System.out.println("员工信息不存在，用户ID: " + id);
             return R.error().message("员工信息不存在");
         }
         String clerkId = clerk.getId();
+        System.out.println("找到员工ID: " + clerkId);
         QueryWrapper<Contract> contractQueryWrapper = new QueryWrapper<>();
-        contractQueryWrapper.eq("clerk_id",clerkId);
+        contractQueryWrapper.eq("clerk_id",clerkId).eq("is_deleted",0);
         List<Contract> contractList = contractService.list(contractQueryWrapper);
+        System.out.println("查询到合同数量: " + contractList.size());
         return R.ok().data("contractList",contractList);
     }
     //查询快到期合同

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gzb.staff.mapper.AttendanceMapper">
     <select id="pageListQuery" parameterType="com.gzb.staff.entity.vo.AttendanceQueryVo" resultType="com.gzb.staff.entity.Attendance">
-        select a.id,a.name,a.time,a.status,a.audit,a.reason,d.name as department_id,c.name as clerk_id
+        select a.id,a.name,a.time,a.status,a.audit,a.reason,d.name as departmentName,c.name as clerkName
         from attendance as a,department as d,clerk as c
         where a.clerk_id = c.id and d.id = a.department_id and a.is_deleted = 0
         <if test="attendanceQueryVo.name != null">

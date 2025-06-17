@@ -70,4 +70,16 @@ public class RPQueryVo {
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
     }
+
+    @Override
+    public String toString() {
+        return "RPQueryVo{" +
+                "type='" + type + '\'' +
+                ", time='" + time + '\'' +
+                ", reason='" + reason + '\'' +
+                ", money=" + money +
+                ", clerkName='" + clerkName + '\'' +
+                ", departmentName='" + departmentName + '\'' +
+                '}';
+    }
 }

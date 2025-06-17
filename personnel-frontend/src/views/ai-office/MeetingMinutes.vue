@@ -225,12 +225,17 @@
 </template>
 
 <script>
+import { generateDocument, getDocumentTemplates, saveCustomTemplate } from '@/api/ai-office'
+import { getUserInfo } from '@/utils/auth'
+
 export default {
   name: 'MeetingMinutes',
   data() {
     return {
       loading: false,
+      saving: false,
       templateDialogVisible: false,
+      saveTemplateDialogVisible: false,
       meetingForm: {
         title: '',
         datetime: '',
@@ -241,41 +246,14 @@ export default {
         content: '',
         audioFile: null
       },
+      templateForm: {
+        templateName: '',
+        description: '',
+        roleType: 'all'
+      },
       generatedMinutes: null,
-      historyMinutes: [
-        {
-          id: 1,
-          title: '2024年第一季度工作总结会议',
-          type: 'regular',
-          datetime: '2024-01-15 14:00',
-          host: '张经理',
-          attendeeCount: 8
-        },
-        {
-          id: 2,
-          title: '新产品开发项目启动会',
-          type: 'project',
-          datetime: '2024-01-12 10:00',
-          host: '李总监',
-          attendeeCount: 12
-        }
-      ],
-      templates: [
-        {
-          id: 1,
-          name: '工作例会模板',
-          type: 'regular',
-          description: '标准的工作例会纪要格式',
-          usageCount: 45
-        },
-        {
-          id: 2,
-          name: '项目会议模板',
-          type: 'project',
-          description: '项目相关会议的纪要模板',
-          usageCount: 32
-        }
-      ],
+      historyMinutes: [],
+      templates: [],
       typeLabels: {
         'regular': '工作例会',
         'project': '项目会议',
@@ -290,91 +268,169 @@ export default {
       this.meetingForm.audioFile = file.raw
       this.$message.success('录音文件上传成功')
     },
-    generateMinutes() {
+    async loadTemplates() {
+      try {
+        const response = await getDocumentTemplates()
+        this.templates = response.data.templates.filter(t => t.templateType.includes('会议纪要')) || []
+      } catch (error) {
+        console.error('加载模板失败：', error)
+      }
+    },
+
+    async generateMinutes() {
       if (!this.meetingForm.title || !this.meetingForm.content) {
         this.$message.warning('请填写会议主题和内容')
         return
       }
       
       this.loading = true
-      
-      // 模拟AI生成过程
-      setTimeout(() => {
+      try {
+        const userInfo = getUserInfo()
+        
+        // 构建会议信息内容
+        const meetingInfo = `
+会议主题：${this.meetingForm.title}
+会议时间：${this.meetingForm.datetime ? new Date(this.meetingForm.datetime).toLocaleString() : '未指定'}
+会议地点：${this.meetingForm.location || '未指定'}
+主持人：${this.meetingForm.host || '未指定'}
+参会人员：${this.meetingForm.attendees || '未指定'}
+会议类型：${this.typeLabels[this.meetingForm.type] || '未指定'}
+
+会议内容：
+${this.meetingForm.content}
+        `.trim()
+        
+        const requestData = {
+          documentType: '会议纪要',
+          title: this.meetingForm.title,
+          content: meetingInfo,
+          department: userInfo.department || '未指定',
+          userId: userInfo.id
+        }
+        
+        const response = await generateDocument(requestData)
+        
+        // 解析生成的会议纪要
         this.generatedMinutes = {
           title: this.meetingForm.title,
           datetime: this.meetingForm.datetime ? new Date(this.meetingForm.datetime).toLocaleString() : '未指定',
           location: this.meetingForm.location || '未指定',
           host: this.meetingForm.host || '未指定',
           attendees: this.meetingForm.attendees || '未指定',
-          agenda: [
-            '回顾上次会议决议执行情况',
-            '讨论当前工作进展',
-            '确定下阶段工作重点',
-            '其他事项'
-          ],
-          discussions: [
-            {
-              topic: '工作进展汇报',
-              content: '各部门汇报了当前工作进展情况，整体进度符合预期。',
-              points: [
-                '技术部门完成了核心功能开发',
-                '市场部门完成了用户调研',
-                '运营部门制定了推广计划'
-              ]
-            },
-            {
-              topic: '问题讨论',
-              content: '针对项目执行中遇到的问题进行了深入讨论。',
-              points: [
-                '资源分配需要进一步优化',
-                '跨部门协作机制需要完善',
-                '时间节点需要适当调整'
-              ]
-            }
-          ],
-          decisions: [
-            {
-              title: '优化资源分配方案',
-              description: '重新评估各项目的资源需求，制定更合理的分配方案',
-              assignee: '项目经理',
-              deadline: '2024-01-20',
-              priority: 'high'
-            },
-            {
-              title: '建立跨部门沟通机制',
-              description: '建立定期的跨部门沟通会议，提高协作效率',
-              assignee: 'HR部门',
-              deadline: '2024-01-25',
-              priority: 'medium'
-            }
-          ],
-          actionItems: [
-            {
-              task: '完成资源分配方案',
-              assignee: '项目经理',
-              deadline: '2024-01-20',
-              status: 'pending'
-            },
-            {
-              task: '制定沟通机制文档',
-              assignee: 'HR部门',
-              deadline: '2024-01-25',
-              status: 'pending'
-            }
-          ],
-          nextMeeting: {
-            time: '2024-01-22 14:00',
-            agenda: '检查行动计划执行情况，讨论下阶段工作安排'
-          }
+          content: response.data.document,
+          createdAt: new Date().toLocaleString()
         }
         
+        this.$message.success('会议纪要生成成功！')
+        
+        // 滚动到结果区域
+        this.$nextTick(() => {
+          const resultCard = this.$el.querySelector('.result-card')
+          if (resultCard) {
+            resultCard.scrollIntoView({ behavior: 'smooth' })
+          }
+        })
+      } catch (error) {
+        this.$message.error('会议纪要生成失败：' + error.message)
+      } finally {
         this.loading = false
-        this.$message.success('会议纪要生成成功')
-      }, 3000)
+      }
     },
+
+    async saveAsTemplate() {
+      if (!this.generatedMinutes) {
+        this.$message.warning('请先生成会议纪要')
+        return
+      }
+      this.templateForm.templateName = this.meetingForm.title + ' - 会议纪要模板'
+      this.saveTemplateDialogVisible = true
+    },
+
+    async confirmSaveTemplate() {
+      if (!this.templateForm.templateName) {
+        this.$message.warning('请输入模板名称')
+        return
+      }
+      
+      this.saving = true
+      try {
+        const userInfo = getUserInfo()
+        const templateData = {
+          templateName: this.templateForm.templateName,
+          templateType: '会议纪要',
+          templateContent: this.generatedMinutes.content,
+          description: this.templateForm.description,
+          roleType: this.templateForm.roleType,
+          creatorId: userInfo.id
+        }
+        
+        await saveCustomTemplate(templateData)
+        this.$message.success('模板保存成功')
+        this.saveTemplateDialogVisible = false
+        this.loadTemplates() // 重新加载模板列表
+      } catch (error) {
+        this.$message.error('模板保存失败：' + error.message)
+      } finally {
+        this.saving = false
+      }
+    },
+
+    exportMinutes() {
+      if (!this.generatedMinutes) return
+      
+      const content = `
+会议纪要
+
+会议主题：${this.generatedMinutes.title}
+会议时间：${this.generatedMinutes.datetime}
+会议地点：${this.generatedMinutes.location}
+主持人：${this.generatedMinutes.host}
+参会人员：${this.generatedMinutes.attendees}
+
+${this.generatedMinutes.content}
+      `.trim()
+      
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${this.generatedMinutes.title}_会议纪要.txt`
+      link.click()
+      window.URL.revokeObjectURL(url)
+      this.$message.success('会议纪要导出成功')
+    },
+
+    shareMinutes() {
+      if (!this.generatedMinutes) return
+      
+      if (navigator.share) {
+        navigator.share({
+          title: this.generatedMinutes.title + ' - 会议纪要',
+          text: this.generatedMinutes.content
+        })
+      } else {
+        // 复制到剪贴板作为备选方案
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(this.generatedMinutes.content)
+          this.$message.success('会议纪要已复制到剪贴板')
+        }
+      }
+    },
+
+    useTemplate() {
+      this.templateDialogVisible = true
+    },
+
+    selectTemplate(template) {
+      this.meetingForm.type = template.templateType
+      this.templateDialogVisible = false
+      this.$message.success('已选择模板：' + template.templateName)
+    },
+
     resetForm() {
       this.$refs.meetingForm.resetFields()
       this.generatedMinutes = null
+      this.meetingForm.audioFile = null
     },
     useTemplate() {
       this.templateDialogVisible = true

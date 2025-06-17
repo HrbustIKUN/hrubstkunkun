@@ -21,8 +21,10 @@ import org.springframework.stereotype.Service;
 public class RewardsPunishmentsServiceImpl extends ServiceImpl<RewardsPunishmentsMapper, RewardsPunishments> implements RewardsPunishmentsService {
 
     @Override
-    public IPage<RewardsPunishments> pageListQuery(Page<RewardsPunishments> clerkPage, RPQueryVo rpQueryVo) {
-        IPage<RewardsPunishments> rewardsPunishmentsIPage = baseMapper.pageListQuery(clerkPage,rpQueryVo);
-        return rewardsPunishmentsIPage;
+    public IPage<RewardsPunishments> pageListQuery(Page<RewardsPunishments> rewardsPunishmentsPage, RPQueryVo rpQueryVo) {
+        System.out.println("奖惩Service层接收到的查询参数: " + rpQueryVo);
+        IPage<RewardsPunishments> result = baseMapper.pageListQuery(rewardsPunishmentsPage,rpQueryVo);
+        System.out.println("奖惩查询结果数量: " + result.getRecords().size());
+        return result;
     }
 }

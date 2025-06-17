@@ -1,6 +1,5 @@
 import request from '@/utils/request'
 
-
 export default {
     //1.（查询分页）
     getContractListPage(current, limit, contractQueryVo) {
@@ -51,7 +50,7 @@ export default {
     getClerkThrough() {
         return request({
           url: `/staff/contract/getContract`,
-          method: "post",
+          method: "post"
         })
       },
   }

@@ -49,7 +49,7 @@ const actions = {
   },
 
   // get user info
-  getInfo({ commit, state }) {
+  getInfo({ commit, dispatch, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
         const { data } = response
@@ -71,10 +71,13 @@ const actions = {
         commit('SET_INTRODUCTION', introduction)
         commit('SET_USER_ID', userId)
         
-        // 初始化AI办公模块
-        dispatch('aiOffice/initAIOffice', null, { root: true }).catch(error => {
-          console.warn('AI办公模块初始化失败:', error)
-        })
+        // 初始化AI办公模块（非阻塞方式）
+        setTimeout(() => {
+          dispatch('ai-office/initAIOffice', null, { root: true }).catch(error => {
+            console.warn('AI办公模块初始化失败:', error)
+            // AI模块初始化失败不应影响用户登录
+          })
+        }, 100)
         
         resolve(data)
       }).catch(error => {

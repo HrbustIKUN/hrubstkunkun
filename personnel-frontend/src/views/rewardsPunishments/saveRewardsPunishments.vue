@@ -54,8 +54,8 @@
       <el-form-item prop="reason" label="奖惩原因">
         <el-input v-model="rewardsPunishments.reason" />
       </el-form-item>
-      <el-form-item prop="amount" label="奖惩金额">
-        <el-input v-model="rewardsPunishments.amount" />
+      <el-form-item prop="money" label="奖惩金额">
+        <el-input v-model="rewardsPunishments.money" />
       </el-form-item>
       <el-form-item label="备注">
         <el-input v-model="rewardsPunishments.note" />
@@ -84,6 +84,7 @@ export default {
         clerkId: "",
         departmentId: "",
         time: "",
+        type: "0",
       },
       saveBtnDisabled: false, // 保存按钮是否禁用,
       departmentList: [],
@@ -95,7 +96,7 @@ export default {
         departmentId: [
           { required: true, message: "请选择部门", trigger: "change" },
         ],
-        amount: [{ required: true, message: "请填写金额", trigger: "change" }],
+        money: [{ required: true, message: "请填写金额", trigger: "change" }],
         clerkId: [{ required: true, message: "请选择员工", trigger: "change" }],
         reason: [{ required: true, message: "请填写原因", trigger: "change" }],
       },

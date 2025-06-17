@@ -2,20 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gzb.staff.mapper.ContractMapper">
     <select id="pageListQuery" parameterType="com.gzb.staff.entity.vo.ContractQueryVo" resultType="com.gzb.staff.entity.Contract">
-        select co.id,co.name,co.start_time,co.end_time,co.photo,cl.name as clerk_id
-        from contract as co,clerk as cl where co.is_deleted = 0 and co.clerk_id = cl.id
-        <if test="contractQueryVo.name != null">
-            and co.name like '%${contractQueryVo.name}%'
+        select co.id,co.name,co.time as startTime,co.timeout as endTime,co.url as photo,cl.name as clerkName
+        from contract as co
+        LEFT JOIN clerk as cl ON co.clerk_id = cl.id
+        where co.is_deleted = 0 and cl.is_deleted = 0
+        <if test="contractQueryVo.name != null and contractQueryVo.name != ''">
+            and co.name like CONCAT('%', #{contractQueryVo.name}, '%')
         </if>
-        <if test="contractQueryVo.clerkName != null">
-            and cl.name like '%${contractQueryVo.clerkName}%'
+        <if test="contractQueryVo.clerkName != null and contractQueryVo.clerkName != ''">
+            and cl.name like CONCAT('%', #{contractQueryVo.clerkName}, '%')
         </if>
         <if test="contractQueryVo.endTime != null">
-            and co.end_time &lt;= #{contractQueryVo.endTime}
+            and co.timeout &lt;= #{contractQueryVo.endTime}
         </if>
         <if test="contractQueryVo.startTime != null">
-            and co.start_time &gt;= #{contractQueryVo.startTime}
+            and co.time &gt;= #{contractQueryVo.startTime}
         </if>
-
     </select>
 </mapper>

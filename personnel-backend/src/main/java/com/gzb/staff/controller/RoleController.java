@@ -97,8 +97,8 @@ public class RoleController {
             String departmentId = clerk.getDepartmentId();
             Department department = departmentService.getById(departmentId);
             if(!StringUtils.isEmpty(department)){
-                // 这里应该设置部门名称到相应的字段，而不是departmentId
-                // clerk.setDepartmentName(department.getName());
+                // 设置部门名称到相应的字段
+                clerk.setDepartmentName(department.getName());
             }
             clerkList.add(clerk);
         }

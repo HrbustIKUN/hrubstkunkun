@@ -31,6 +31,24 @@
               </div>
             </el-card>
           </div>
+          
+          <!-- 快速跳转按钮 -->
+          <div class="quick-actions" style="margin-top: 20px;">
+            <el-button-group>
+              <el-button type="primary" @click="goToDocumentGenerator">
+                <i class="el-icon-document"></i>
+                文档生成器
+              </el-button>
+              <el-button type="success" @click="goToEmailGenerator">
+                <i class="el-icon-message"></i>
+                邮件生成器
+              </el-button>
+              <el-button type="warning" @click="goToMeetingMinutes">
+                <i class="el-icon-notebook-1"></i>
+                会议纪要
+              </el-button>
+            </el-button-group>
+          </div>
 
           <!-- 功能操作区域 -->
           <div class="function-operation" v-if="selectedFunction">
@@ -404,6 +422,21 @@ export default {
         hour: '2-digit',
         minute: '2-digit'
       })
+    },
+    
+    // 跳转到文档生成器
+    goToDocumentGenerator() {
+      this.$router.push('/ai-office/document')
+    },
+    
+    // 跳转到邮件生成器
+    goToEmailGenerator() {
+      this.$router.push('/ai-office/email')
+    },
+    
+    // 跳转到会议纪要
+    goToMeetingMinutes() {
+      this.$router.push('/ai-office/meeting')
     }
   },
   

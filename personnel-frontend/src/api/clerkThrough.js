@@ -1,6 +1,5 @@
 import request from '@/utils/request'
 
-
 export default {
     //1.（查询分页）
     getClerkThrough() {

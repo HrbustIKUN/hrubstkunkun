@@ -186,12 +186,17 @@
 </template>
 
 <script>
+import { generateEmail, getDocumentTemplates, saveCustomTemplate } from '@/api/ai-office'
+import { getUserInfo } from '@/utils/auth'
+
 export default {
   name: 'EmailGenerator',
   data() {
     return {
       loading: false,
+      saving: false,
       templateDialogVisible: false,
+      saveTemplateDialogVisible: false,
       emailForm: {
         type: '',
         recipient: '',
@@ -203,41 +208,14 @@ export default {
         hasAttachment: false,
         attachmentDesc: ''
       },
+      templateForm: {
+        templateName: '',
+        description: '',
+        roleType: 'all'
+      },
       generatedEmail: null,
-      emailHistory: [
-        {
-          id: 1,
-          subject: '项目进度汇报',
-          recipient: '张经理',
-          type: 'work-report',
-          status: 'sent',
-          createdAt: '2024-01-15 14:30:00'
-        },
-        {
-          id: 2,
-          subject: '团队会议邀请',
-          recipient: '开发团队',
-          type: 'meeting-invitation',
-          status: 'draft',
-          createdAt: '2024-01-14 09:15:00'
-        }
-      ],
-      emailTemplates: [
-        {
-          id: 1,
-          name: '工作汇报模板',
-          type: 'work-report',
-          description: '标准的工作汇报邮件格式',
-          usageCount: 32
-        },
-        {
-          id: 2,
-          name: '会议邀请模板',
-          type: 'meeting-invitation',
-          description: '正式的会议邀请邮件',
-          usageCount: 28
-        }
-      ],
+      emailHistory: [],
+      emailTemplates: [],
       typeLabels: {
         'work-report': '工作汇报',
         'meeting-invitation': '会议邀请',
@@ -250,6 +228,10 @@ export default {
         'custom': '自定义'
       }
     }
+  },
+  
+  created() {
+    this.loadTemplates()
   },
   methods: {
     handleTypeChange() {
@@ -277,26 +259,59 @@ export default {
         Object.assign(this.emailForm, defaults)
       }
     },
-    generateEmail() {
+    async loadTemplates() {
+      try {
+        const response = await getDocumentTemplates()
+        this.emailTemplates = response.data.templates.filter(t => t.templateType.includes('邮件')) || []
+      } catch (error) {
+        console.error('加载模板失败：', error)
+      }
+    },
+
+    async generateEmail() {
       if (!this.emailForm.type || !this.emailForm.recipient || !this.emailForm.content) {
         this.$message.warning('请填写邮件类型、收件人和主要内容')
         return
       }
       
       this.loading = true
-      
-      // 模拟AI生成过程
-      setTimeout(() => {
+      try {
+        const userInfo = getUserInfo()
+        const requestData = {
+          emailType: this.emailForm.type,
+          recipient: this.emailForm.recipient,
+          mainContent: this.emailForm.content,
+          tone: this.emailForm.tone,
+          urgency: this.emailForm.urgency,
+          subject: this.emailForm.subject,
+          requirements: this.emailForm.requirements,
+          hasAttachment: this.emailForm.hasAttachment,
+          attachmentDesc: this.emailForm.attachmentDesc,
+          userId: userInfo.id
+        }
+        
+        const response = await generateEmail(requestData)
         this.generatedEmail = {
           recipient: this.emailForm.recipient,
-          subject: this.emailForm.subject || this.generateDefaultSubject(),
-          body: this.generateEmailBody(),
+          subject: this.emailForm.subject || response.data.subject,
+          body: response.data.emailContent,
           createdAt: new Date().toLocaleString()
         }
         
+        this.$message.success('邮件生成成功！')
+        
+        // 滚动到结果区域
+        this.$nextTick(() => {
+          const resultCard = this.$el.querySelector('.result-card')
+          if (resultCard) {
+            resultCard.scrollIntoView({ behavior: 'smooth' })
+          }
+        })
+      } catch (error) {
+        this.$message.error('邮件生成失败：' + error.message)
+      } finally {
         this.loading = false
-        this.$message.success('邮件生成成功')
-      }, 2500)
+      }
     },
     generateDefaultSubject() {
       const typeSubjects = {

@@ -7,9 +7,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gzb.staff.entity.Attendance;
 import com.gzb.staff.entity.Clerk;
+import com.gzb.staff.entity.Department;
+import com.gzb.staff.entity.User;
 import com.gzb.staff.entity.vo.AttendanceQueryVo;
 import com.gzb.staff.service.AttendanceService;
 import com.gzb.staff.service.ClerkService;
+import com.gzb.staff.service.DepartmentService;
+import com.gzb.staff.service.UserService;
 import com.gzb.staff.utils.JwtUtils;
 import com.gzb.staff.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +38,20 @@ public class AttendanceController {
     private AttendanceService attendanceService;
     @Autowired
     private ClerkService clerkService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private DepartmentService departmentService;
     //1.分页查询所有
     @PostMapping("listPage/{current}/{limit}")
     public R getAttendanceListPage(
             @PathVariable long current,
             @PathVariable long limit,
             @RequestBody(required = false) AttendanceQueryVo attendanceQueryVo) {
+        System.out.println("接收到的查询参数: " + attendanceQueryVo);
+        if (attendanceQueryVo != null) {
+            System.out.println("audit值: " + attendanceQueryVo.getAudit());
+        }
         Page<Attendance> attendancePage = new Page<>(current,limit);
         IPage<Attendance> clerkIPage = attendanceService.pageListQuery(attendancePage,attendanceQueryVo);
         //获取总记录数
@@ -97,7 +109,7 @@ public class AttendanceController {
     //5.修改
     @PutMapping
     public R updateAttendance(@RequestBody Attendance attendance){
-        attendance.setAudit(0);
+        attendance.setAudit("0");
         boolean updateById = attendanceService.updateById(attendance);
         if (updateById){
             return R.ok().message("修改成功");
@@ -122,23 +134,26 @@ public class AttendanceController {
                                    @RequestBody(required = false) AttendanceQueryVo attendanceQueryVo,
                                    @RequestHeader("X-Token") String token) {
         try {
-            String id = JwtUtils.getMemberIdByToken(token);
-            QueryWrapper<Clerk> clerkQueryWrapper = new QueryWrapper<>();
-            clerkQueryWrapper.eq("user_id",id);
-            Clerk clerk = clerkService.getOne(clerkQueryWrapper);
-            if (clerk == null) {
-                return R.error().message("员工信息不存在");
-            }
-            String clerkId = clerk.getId();
-
-            QueryWrapper<Attendance> attendanceQueryWrapper = new QueryWrapper<>();
-            attendanceQueryWrapper.eq("clerk_id",clerkId);
+            System.out.println("个人考勤查询 - 接收到的参数: " + attendanceQueryVo);
+            String userId = JwtUtils.getMemberIdByToken(token);
+            System.out.println("从token解析的用户ID: " + userId);
             
-            // 添加查询条件
+            // 直接通过用户ID获取用户信息
+            User user = userService.getById(userId);
+            if (user == null) {
+                System.out.println("用户信息不存在，用户ID: " + userId);
+                return R.error().message("用户信息不存在");
+            }
+            String userName = user.getName();
+            System.out.println("找到用户姓名: " + userName);
+
+            // 直接通过用户姓名查询考勤记录
+            QueryWrapper<Attendance> attendanceQueryWrapper = new QueryWrapper<>();
+            attendanceQueryWrapper.eq("name", userName).eq("is_deleted", 0);
+            
+            // 添加查询条件（注意：姓名条件已经固定为当前用户，不再从查询参数中获取）
             if (attendanceQueryVo != null) {
-                if (!StringUtils.isEmpty(attendanceQueryVo.getName())) {
-                    attendanceQueryWrapper.like("name",attendanceQueryVo.getName());
-                }
+                // 不再使用查询参数中的姓名条件，因为我们只查询当前用户的考勤记录
                 if (!StringUtils.isEmpty(attendanceQueryVo.getStatus())) {
                      attendanceQueryWrapper.eq("status",attendanceQueryVo.getStatus());
                  }
@@ -154,7 +169,31 @@ public class AttendanceController {
             attendanceService.page(attendancePage,attendanceQueryWrapper);
             
             List<Attendance> attendanceList = attendancePage.getRecords();
+            System.out.println("查询到考勤记录数量: " + attendanceList.size());
             long total = attendancePage.getTotal();
+            System.out.println("考勤记录总数: " + total);
+            
+            // 获取用户的部门信息
+            String departmentName = "暂无部门信息";
+            try {
+                QueryWrapper<Clerk> clerkQueryWrapper = new QueryWrapper<>();
+                clerkQueryWrapper.eq("user_id", userId).eq("is_deleted", 0);
+                Clerk clerk = clerkService.getOne(clerkQueryWrapper);
+                if (clerk != null && clerk.getDepartmentId() != null) {
+                    Department department = departmentService.getById(clerk.getDepartmentId());
+                    if (department != null) {
+                        departmentName = department.getName();
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("获取部门信息失败: " + e.getMessage());
+            }
+            
+            // 为每个考勤记录添加部门信息
+            for (Attendance attendance : attendanceList) {
+                attendance.setDepartmentName(departmentName);
+            }
+            
             return R.ok().data("attendanceList",attendanceList).data("total",total);
         } catch (Exception e) {
             return R.error().message("查询失败: " + e.getMessage());
@@ -165,7 +204,7 @@ public class AttendanceController {
     public R updateAttendanceOk(@PathVariable String id){
         Attendance attendance = new Attendance();
         attendance.setId(id);
-        attendance.setAudit(1);
+        attendance.setAudit("1");
         attendanceService.updateById(attendance);
         return R.ok();
     }
@@ -174,7 +213,7 @@ public class AttendanceController {
     public R updateAttendanceNo(@PathVariable String id){
         Attendance attendance = new Attendance();
         attendance.setId(id);
-        attendance.setAudit(2);
+        attendance.setAudit("2");
         attendanceService.updateById(attendance);
         return R.ok();
     }
@@ -185,19 +224,18 @@ public class AttendanceController {
         try {
             // 从token获取用户信息
             String userId = JwtUtils.getMemberIdByToken(token);
-            QueryWrapper<Clerk> clerkQueryWrapper = new QueryWrapper<>();
-            clerkQueryWrapper.eq("user_id", userId);
-            Clerk clerk = clerkService.getOne(clerkQueryWrapper);
+            User user = userService.getById(userId);
             
-            if (clerk == null) {
+            if (user == null) {
                 return R.error().message("用户信息不存在");
             }
             
-            // 设置员工信息
-            attendance.setClerkId(clerk.getId());
-            attendance.setDepartmentId(clerk.getDepartmentId());
-            attendance.setName(clerk.getName());
-            attendance.setAudit(0); // 待审核状态
+            // 设置用户信息
+            attendance.setName(user.getName());
+            attendance.setAudit("0"); // 待审核状态
+            // 注意：clerk_id和department_id可以设置为null或默认值，因为我们不再依赖clerk表
+            attendance.setClerkId(null);
+            attendance.setDepartmentId(null);
             
             boolean save = attendanceService.save(attendance);
             if (save) {

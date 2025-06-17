@@ -29,7 +29,7 @@ public class RewardsPunishments implements Serializable {
     private String id;
 
     @Schema(description = "奖惩类型:0奖励，1惩罚")
-    private Integer type;
+    private String type;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -40,9 +40,11 @@ public class RewardsPunishments implements Serializable {
     private String reason;
 
     @Schema(description = "奖惩金额")
+    @TableField("amount")
     private BigDecimal money;
 
     @Schema(description = "备注")
+    @TableField("note")
     private String remark;
 
     @Schema(description = "员工id")
@@ -50,6 +52,14 @@ public class RewardsPunishments implements Serializable {
 
     @Schema(description = "部门编号")
     private String departmentId;
+
+    @Schema(description = "员工姓名")
+    @TableField(exist = false)
+    private String clerkName;
+
+    @Schema(description = "部门名称")
+    @TableField(exist = false)
+    private String departmentName;
 
     @Schema(description = "逻辑删除 1（true）已删除， 0（false）未删除")
     @TableLogic
@@ -71,11 +81,11 @@ public class RewardsPunishments implements Serializable {
         this.id = id;
     }
 
-    public Integer getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -125,6 +135,22 @@ public class RewardsPunishments implements Serializable {
 
     public void setDepartmentId(String departmentId) {
         this.departmentId = departmentId;
+    }
+
+    public String getClerkName() {
+        return clerkName;
+    }
+
+    public void setClerkName(String clerkName) {
+        this.clerkName = clerkName;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 
     public Integer getIsDeleted() {

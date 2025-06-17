@@ -10,7 +10,7 @@
       </el-form-item>
       <el-form-item>
         <el-input
-          v-model="rewardsPunishmentsQueryVo.amount"
+          v-model="rewardsPunishmentsQueryVo.money"
           placeholder="奖惩金额"
         />
       </el-form-item>
@@ -67,12 +67,22 @@
         sortable
         label="类型"
         width="100"
-      />
+      >
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.type === '0' ? 'success' : 'danger'">
+            {{ scope.row.type === '0' ? '奖励' : '惩罚' }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="time" sortable label="日期" width="200" />
       <el-table-column prop="reason" label="原因" />
-      <el-table-column prop="amount" sortable label="金额" />
-      <el-table-column prop="clerkId" sortable label="员工姓名" />
-      <el-table-column prop="departmentId" sortable label="员工部门" />
+      <el-table-column prop="money" sortable label="金额" >
+        <template slot-scope="scope">
+          ¥{{ scope.row.money }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="clerkName" sortable label="员工姓名" />
+      <el-table-column prop="departmentName" sortable label="员工部门" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <router-link
@@ -142,6 +152,7 @@ export default {
     //列表方法
     getRewardsPunishmentsListPage(page = 1) {
       this.page = page;
+      console.log('奖惩查询参数:', this.rewardsPunishmentsQueryVo);
       rewardsPunishments
         .getRewardsPunishmentsListPage(
           this.page,
@@ -151,11 +162,12 @@ export default {
         .then((response) => {
           //请求成功
           //response接口返回的数据
+          console.log('奖惩API响应:', response.data);
           this.list = response.data.rewardsPunishmentsList;
           this.total = response.data.total;
         })
         .catch((error) => {
-          console.log(error);
+          console.log('奖惩API错误:', error);
         });
     },
     resetData() {

@@ -4,7 +4,7 @@
 export const AI_PERMISSIONS = {
   // 基础AI功能 - 所有角色都可以使用
   BASIC_AI: {
-    roles: ['admin', 'hr', 'employee'],
+    roles: ['管理员', '人事经理', '职员'],
     functions: [
       'intelligent-qa',        // 智能问答
       'document-generation',   // 文档生成
@@ -14,9 +14,9 @@ export const AI_PERMISSIONS = {
     ]
   },
   
-  // 高级AI功能 - 管理员和HR可以使用
+  // 高级AI功能 - 管理员和人事经理可以使用
   ADVANCED_AI: {
-    roles: ['admin', 'hr'],
+    roles: ['管理员', '人事经理'],
     functions: [
       'data-analysis',         // 数据分析
       'meeting-minutes',       // 会议纪要
@@ -28,7 +28,7 @@ export const AI_PERMISSIONS = {
   
   // 管理功能 - 仅管理员可以使用
   ADMIN_AI: {
-    roles: ['admin'],
+    roles: ['管理员'],
     functions: [
       'ai-configuration',      // AI配置
       'model-management',      // 模型管理
@@ -39,33 +39,28 @@ export const AI_PERMISSIONS = {
   }
 }
 
-// AI功能使用限制
+// AI使用限制配置
 export const AI_LIMITS = {
-  // 普通员工限制
-  employee: {
-    dailyQuota: 50,           // 每日使用次数
-    maxTokensPerRequest: 2000, // 单次请求最大token数
-    allowedModels: ['gpt-3.5-turbo'], // 允许使用的模型
-    maxHistoryDays: 7,        // 历史记录保留天数
-    maxTemplates: 5           // 最大自定义模板数
+  '管理员': {
+    dailyQuota: 1000,        // 每日配额
+    monthlyQuota: 30000,     // 每月配额
+    maxTokensPerRequest: 4000, // 单次请求最大token数
+    concurrentRequests: 10,   // 并发请求数
+    advancedFeatures: true    // 是否可使用高级功能
   },
-  
-  // HR限制
-  hr: {
+  '人事经理': {
+    dailyQuota: 500,
+    monthlyQuota: 15000,
+    maxTokensPerRequest: 3000,
+    concurrentRequests: 5,
+    advancedFeatures: true
+  },
+  '职员': {
     dailyQuota: 200,
-    maxTokensPerRequest: 4000,
-    allowedModels: ['gpt-3.5-turbo', 'gpt-4'],
-    maxHistoryDays: 30,
-    maxTemplates: 20
-  },
-  
-  // 管理员限制
-  admin: {
-    dailyQuota: -1,           // 无限制
-    maxTokensPerRequest: 8000,
-    allowedModels: ['gpt-3.5-turbo', 'gpt-4', 'claude-3'],
-    maxHistoryDays: 365,
-    maxTemplates: -1          // 无限制
+    monthlyQuota: 6000,
+    maxTokensPerRequest: 2000,
+    concurrentRequests: 3,
+    advancedFeatures: false
   }
 }
 
@@ -113,7 +108,7 @@ export function getUserAIFunctions(userRole) {
 
 // 获取用户AI使用限制
 export function getUserAILimits(userRole) {
-  return AI_LIMITS[userRole] || AI_LIMITS.employee
+  return AI_LIMITS[userRole] || AI_LIMITS['职员']
 }
 
 // 检查用户是否超出使用限制
@@ -146,7 +141,7 @@ export function checkUsageLimit(userRole, currentUsage) {
 
 // AI功能菜单配置
 export const AI_MENU_CONFIG = {
-  admin: [
+  '管理员': [
     {
       title: 'AI办公助手',
       icon: 'el-icon-cpu',
@@ -165,7 +160,7 @@ export const AI_MENU_CONFIG = {
     }
   ],
   
-  hr: [
+  '人事经理': [
     {
       title: 'AI办公助手',
       icon: 'el-icon-cpu',
@@ -183,7 +178,7 @@ export const AI_MENU_CONFIG = {
     }
   ],
   
-  employee: [
+  '职员': [
     {
       title: 'AI办公助手',
       icon: 'el-icon-cpu',
@@ -200,7 +195,7 @@ export const AI_MENU_CONFIG = {
 
 // 获取用户AI菜单配置
 export function getUserAIMenu(userRole) {
-  return AI_MENU_CONFIG[userRole] || AI_MENU_CONFIG.employee
+  return AI_MENU_CONFIG[userRole] || AI_MENU_CONFIG['职员']
 }
 
 // AI功能状态检查

@@ -51,7 +51,11 @@
         </template>
       </el-table-column>
       <el-table-column prop="name" sortable label="员工姓名" />
-      <el-table-column prop="departmentId" sortable label="员工部门" />
+      <el-table-column label="员工部门">
+        <template slot-scope="scope">
+          <span>暂无部门信息</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="reason" label="备注" width="200">
         <template slot-scope="scope">
           <span>{{ scope.row.reason || '无' }}</span>
@@ -145,33 +149,29 @@ export default {
        };
        return auditMap[audit] || '未知';
      },
-    
-  },
-    //页面渲染之后执行，一般用于创建具体方法
-    //列表方法
-    getAttendance(page = 1) {
-      this.page = page;
-      attendance
-        .getAttendance(
-          this.page,
-          this.limit,
-          this.attendanceQueryVo
-        )
-        .then((response) => {
-          //请求成功
-          //response接口返回的数据
-          this.list = response.data.attendanceList;
-          this.total = response.data.total;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    resetData() {
-      this.getAttendance();
-    },
-    
+     //列表方法
+     getAttendance(page = 1) {
+       this.page = page;
+       console.log('个人考勤查询参数:', this.attendanceQueryVo);
+       attendance
+         .getAttendance(
+           this.page,
+           this.limit,
+           this.attendanceQueryVo
+         )
+         .then((response) => {
+           //请求成功
+           //response接口返回的数据
+           console.log('个人考勤API响应:', response.data);
+           this.list = response.data.attendanceList;
+           this.total = response.data.total;
+         })
+         .catch((error) => {
+           console.log('个人考勤API错误:', error);
+         });
+     }
   }
+}
 
 </script>
 

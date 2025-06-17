@@ -47,7 +47,7 @@
             <el-form-item label="合同照片">
               <el-image
                 style="width: 100px; height: 100px"
-                :src="props.row.url"
+                :src="baseApi + props.row.photo"
                 fit="contain"
               /> </el-form-item
             >
@@ -62,9 +62,9 @@
       </el-table-column>
       <el-table-column prop="id" sortable label="合同编号" width="200" />
       <el-table-column prop="name" sortable label="合同名称" width="100" />
-      <el-table-column prop="time" sortable label="签约日期" />
-      <el-table-column prop="timeout" sortable label="截止日期" />
-      <el-table-column prop="clerkId" sortable label="员工名称" />
+      <el-table-column prop="startTime" sortable label="签约日期" />
+      <el-table-column prop="endTime" sortable label="截止日期" />
+      <el-table-column prop="clerkName" sortable label="员工名称" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <router-link :to="'/contract/updateContract/' + scope.row.id">

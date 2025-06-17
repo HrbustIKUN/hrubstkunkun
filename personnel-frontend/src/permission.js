@@ -7,7 +7,16 @@ import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
 import { hasAIPermission } from '@/permission/ai-office'
 
-NProgress.configure({ showSpinner: false }) // NProgress Configuration
+// NProgress Configuration
+if (typeof NProgress !== 'undefined' && NProgress.configure) {
+  NProgress.configure({ 
+    showSpinner: false,
+    minimum: 0.1,
+    easing: 'ease',
+    speed: 500,
+    trickleSpeed: 200
+  })
+}
 
 const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 
@@ -25,20 +34,28 @@ router.beforeEach(async(to, from, next) => {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
       next({ path: '/' })
-      NProgress.done() // hack: https://github.com/PanJiaChen/vue-element-admin/pull/2939
+      NProgress.done()
     } else {
       // determine whether the user has obtained his permission roles through getInfo
       const hasRoles = store.getters.roles && store.getters.roles.length > 0
       if (hasRoles) {
         // 检查AI办公功能权限
-        if (to.path.startsWith('/ai-office/')) {
-          const userRole = store.getters.role
+        if (to.path.startsWith('/ai-office/') && to.meta && to.meta.aiFunction) {
+          const userRoles = store.getters.roles
           const requiredFunction = to.meta.aiFunction
-          if (requiredFunction && !hasAIPermission(userRole, requiredFunction)) {
-            Message.error('您没有权限访问此AI功能')
-            next('/401')
-            NProgress.done()
-            return
+          if (userRoles.length > 0) {
+            // 取第一个角色进行权限检查
+            const userRole = userRoles[0]
+            if (!hasAIPermission(userRole, requiredFunction)) {
+              // 使用更安全的Message调用方式
+              Message({
+                message: '您没有权限访问此AI功能',
+                type: 'error'
+              })
+              next('/401')
+              NProgress.done()
+              return
+            }
           }
         }
         next()
@@ -59,18 +76,23 @@ router.beforeEach(async(to, from, next) => {
             // redirect based on user role
             if (roles.includes('职员')) {
               next('/employee/dashboard')
+            } else if (roles.includes('admin') || roles.includes('super_admin') || roles.includes('管理员') || roles.includes('人事经理')) {
+              next('/admin/index')
             } else {
-              next('/index')
+              next('/employee/dashboard') // 默认重定向到员工首页
             }
           } else {
             // hack method to ensure that addRoutes is complete
-            // set the replace: true, so the navigation will not leave a history record
             next({ ...to, replace: true })
           }
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
+          // 使用更安全的Message调用方式避免Vue警告
+          Message({
+            message: error || 'Has Error',
+            type: 'error'
+          })
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }

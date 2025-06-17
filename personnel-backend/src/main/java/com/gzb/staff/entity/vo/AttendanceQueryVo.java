@@ -58,4 +58,14 @@ public class AttendanceQueryVo {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "AttendanceQueryVo{" +
+                "clerkName='" + clerkName + '\'' +
+                ", departmentName='" + departmentName + '\'' +
+                ", audit='" + audit + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }
