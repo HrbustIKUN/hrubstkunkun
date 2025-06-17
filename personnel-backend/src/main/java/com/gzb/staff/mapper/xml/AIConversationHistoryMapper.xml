@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gzb.staff.mapper.AIConversationHistoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gzb.staff.entity.AIConversationHistory">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="session_id" property="sessionId" />
+        <result column="question" property="question" />
+        <result column="answer" property="answer" />
+        <result column="function_type" property="functionType" />
+        <result column="context_info" property="contextInfo" />
+        <result column="created_time" property="createdTime" />
+        <result column="is_deleted" property="isDeleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, session_id, question, answer, function_type, context_info, created_time, is_deleted
+    </sql>
+
+    <!-- 根据功能类型统计使用次数 -->
+    <select id="countByFunctionType" resultType="java.util.Map">
+        SELECT 
+            function_type,
+            COUNT(*) as count
+        FROM ai_conversation_history 
+        WHERE user_id = #{userId} 
+        AND is_deleted = 0
+        GROUP BY function_type
+    </select>
+
+    <!-- 统计指定时间范围内的使用情况 -->
+    <select id="countByDateRange" resultType="java.util.Map">
+        SELECT 
+            DATE(created_time) as date,
+            COUNT(*) as count
+        FROM ai_conversation_history 
+        WHERE created_time BETWEEN #{startTime} AND #{endTime}
+        AND is_deleted = 0
+        GROUP BY DATE(created_time)
+        ORDER BY date
+    </select>
+
+</mapper>
